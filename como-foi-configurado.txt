@@ -31,9 +31,9 @@ Agora é entrar no container do spark-master: docker exec -it big-data-elio-spar
 
 Dentro do terminal do container spark-master execute: /opt/spark/bin/spark-submit --master spark://spark-master:7077 /opt/spark/scripts/processo-csv.py
 
-com o .json ainda não funciona por conta de um problema de parsing e ainda não testei o parquet. Meu resultado com o .csv abaixo:
+Meu resultado com o .csv abaixo:
 
-25/06/28 21:41:03 INFO CodeGenerator: Code generated in 18.610967 ms
+25/06/29 14:21:44 INFO CodeGenerator: Code generated in 14.792002 ms
 +-----------+------+
 |  categoria| count|
 +-----------+------+
@@ -44,6 +44,39 @@ com o .json ainda não funciona por conta de um problema de parsing e ainda não
 |  alimentos|199853|
 +-----------+------+
 
-Tempo de processamento CSV: 9.78 segundos
+Tempo de processamento CSV: 6.57 segundos
+
+Meu resultado com .json abaixo:
+
+25/06/29 14:20:13 INFO CodeGenerator: Code generated in 15.761349 ms
++-----------+------+
+|  categoria| count|
++-----------+------+
+|     livros|199800|
+|eletronicos|200038|
+|     moveis|200280|
+|  vestuario|200029|
+|  alimentos|199853|
++-----------+------+
+
+Tempo de processamento JSON: 8.09 segundos
+
+Meu resultado com .parquet abaixo:
+
+25/06/29 14:22:23 INFO CodeGenerator: Code generated in 14.19047 ms
++-----------+------+
+|  categoria| count|
++-----------+------+
+|     livros|199800|
+|eletronicos|200038|
+|     moveis|200280|
+|  vestuario|200029|
+|  alimentos|199853|
++-----------+------+
+
+Tempo de processamento Parquet: 5.57 segundos
+
+
+
 
 
