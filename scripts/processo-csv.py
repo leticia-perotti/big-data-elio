@@ -9,8 +9,7 @@ spark = SparkSession.builder \
 start = time.time()
 
 
-df = spark.read.option("header", "true").csv("file:///bases/base-exemplo-elio-milhao/dados_sinteticos_1000000.csv")
-
+df = spark.read.option("header", "true").csv("hdfs://namenode:8020/user/spark/bases/dados_sinteticos_1000000.csv")
 df.groupBy("categoria").count().show()
 
 end = time.time()

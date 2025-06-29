@@ -1,0 +1,49 @@
+Houveram alteraçoes no docker-compose. A principal sendo a mudança da imagem do spark para image: apache/spark:latest
+
+Primeiramente subi o docker
+
+Enviei os arquivos de dados_sinteticos para o Hadoop Distributed File System, da seguinte maneira:
+
+Dentro do repositorio rodei os seguintes comandos
+docker cp ./bases/dados_sinteticos_1000000/dados_sinteticos_1000000.csv big-data-elio-namenode-1:/tmp/dados_sinteticos_1000000.csv
+docker cp ./bases/dados_sinteticos_1000000/dados_sinteticos_1000000.json big-data-elio-namenode-1:/tmp/dados_sinteticos_1000000.json
+docker cp ./bases/dados_sinteticos_1000000/dados_sinteticos_1000000.parquet big-data-elio-namenode-1:/tmp/dados_sinteticos_1000000.parquet
+
+Depois Acessei o terminal do Namenode com esse comando: docker exec -it big-data-elio-namenode-1 bash
+
+Então, dentro dentro desse container rodei esses comandos:
+hdfs dfs -put /tmp/dados_sinteticos_1000000.csv /user/spark/bases/
+
+hdfs dfs -put /tmp/dados_sinteticos_1000000.json /user/spark/bases/
+
+hdfs dfs -put /tmp/dados_sinteticos_1000000.parquet /user/spark/bases/
+
+
+============================================================
+(Se a pasta /user/spark/bases não existir, você precisará criá-la novamente usando 
+hdfs dfs -mkdir -p /user/spark/bases 
+antes de copiar os arquivos)
+============================================================
+
+Depois disso foi "configurado" e da para sair desse container
+
+Agora é entrar no container do spark-master: docker exec -it big-data-elio-spark-master-1 bash
+
+Dentro do terminal do container spark-master execute: /opt/spark/bin/spark-submit --master spark://spark-master:7077 /opt/spark/scripts/processo-csv.py
+
+com o .json ainda não funciona por conta de um problema de parsing e ainda não testei o parquet. Meu resultado com o .csv abaixo:
+
+25/06/28 21:41:03 INFO CodeGenerator: Code generated in 18.610967 ms
++-----------+------+
+|  categoria| count|
++-----------+------+
+|     livros|199800|
+|eletronicos|200038|
+|     moveis|200280|
+|  vestuario|200029|
+|  alimentos|199853|
++-----------+------+
+
+Tempo de processamento CSV: 9.78 segundos
+
+

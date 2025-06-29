@@ -20,26 +20,52 @@ services:
       - "9864:9864"
 
   spark-master:
-    image: bitnami/spark:latest
+    image: apache/spark:latest
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master", "--host", "spark-master", "--port", "7077", "--webui-port", "8080"] # <--- Mude esta linha
     environment:
-      - SPARK_MODE=master
-      - USER=spark
+      - SPARK_CONF_DIR=/opt/spark/conf
+      # As variáveis SPARK_MASTER_PORT, SPARK_MASTER_WEBUI_PORT, SPARK_MASTER_HOST
+      # podem ser redundantes com o 'command' explícito, mas mantê-las não deve fazer mal.
+      # Removi SPARK_MASTER_PORT, SPARK_MASTER_WEBUI_PORT, SPARK_MASTER_HOST do ambiente para evitar conflito com 'command'
+      - SPARK_RPC_AUTHENTICATION_ENABLED=false
+      - SPARK_RPC_ENCRYPTION_ENABLED=false
+      - SPARK_LOCAL_STORAGE_ENCRYPTED=false
+      - SPARK_SSL_ENABLED=false
+      - SPARK_DAEMON_JAVA_OPTS="-Dspark.deploy.defaultCores=1"
     ports:
       - "8080:8080"
+      - "7077:7077"
     volumes:
-      - ./scripts:/scripts
+      - ./scripts:/opt/spark/scripts
       - ./bases:/bases
+      #- ./hadoop-conf:/opt/bitnami/spark/custom-hadoop-conf # Mapeia suas configs Hadoop
+      # O Bitnami Spark já tem um diretório 'conf' padrão.
+      # Vamos sobrescrever/adicionar as configurações de HDFS aqui.
+      # Algumas imagens Bitnami usam /opt/bitnami/spark/conf por padrão.
+      # Vamos tentar montar em um subdiretório e ajustar a variável.
+      # Mas o ideal é que o Spark pegue de um local que ele já procura,
+      # ou que você especifique spark.hadoop.fs.defaultFS via --conf.
 
   spark-worker:
-    image: bitnami/spark:latest
+    image: apache/spark:latest
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     environment:
-      - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
-      - USER=spark
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_RPC_AUTHENTICATION_ENABLED=false
+      - SPARK_RPC_ENCRYPTION_ENABLED=false
+      - SPARK_LOCAL_STORAGE_ENCRYPTED=false
+      - SPARK_SSL_ENABLED=false
+
     depends_on:
       - spark-master
     ports:
       - "8081:8081"
+    volumes:
+      - ./scripts:/opt/spark/scripts
+      - ./bases:/bases
+      #- ./hadoop-conf:/opt/bitnami/spark/custom-hadoop-conf # Mapeia suas configs Hadoop
 
 volumes:
   hadoop_namenode:

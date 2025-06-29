@@ -8,8 +8,7 @@ spark = SparkSession.builder \
 
 start = time.time()
 
-df = spark.read.parquet("/bases/base-exemplo-elio-milhao/dados_sinteticos_1000000.parquet")
-
+df = spark.read.parquet("hdfs://namenode:8020/user/spark/bases/dados_sinteticos_1000000.parquet")
 df.groupBy("categoria").count().show()
 
 end = time.time()
