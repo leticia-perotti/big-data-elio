@@ -8,7 +8,10 @@ spark = SparkSession.builder \
 
 start = time.time()
 
-df = spark.read.option("header", "true").csv("hdfs://namenode:8020/user/spark/bases/dados_sinteticos_1000000.csv").repartition(8)
+df = spark.read.option("header", "true").option("inferSchema", "true").csv("hdfs://namenode:8020/user/spark/bases/dados_sinteticos_1000000.csv")
+
+df.printSchema()
+df.show(5)
 
 df.groupBy("cliente_id").count().show()
 
